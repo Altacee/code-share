@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.code-editor.rule=Host(`altacee.lol`)"
+      - "traefik.http.routers.code-editor.entrypoints=websecure"
+      - "traefik.http.services.code-editor.loadbalancer.server.port=5001"
+    volumes:
+      - ./room_code_files:/app/room_code_files
+    environment:
+      - SECRET_KEY=your_secret_key
+    depends_on:
+      - traefik
+
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.myresolver.acme.email=aditya@kushwahas.in"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard
+    environment:
+      - CF_DNS_API_TOKEN=your_cloudflare_api_token  # Cloudflare API token
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+
+  # Optionally, add a file storage service for the code files
+  file-storage:
+    image: busybox
+    volumes:
+      - ./room_code_files:/app/room_code_files
