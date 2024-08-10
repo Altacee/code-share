@@ -5,10 +5,10 @@ services:
     build: .
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.host_website_api.rule=Host(`altacee.lol`)"
-      - "traefik.http.routers.host_website_api.entrypoints=https"
-      - "traefik.http.routers.host_website_api.tls.certresolver=letsencrypt"
-      - "traefik.http.services.host_website_api.loadbalancer.server.port=5001"
+      - "traefik.http.routers.code_share_altacee.rule=Host(`altacee.lol`)"
+      - "traefik.http.routers.code_share_altacee.entrypoints=https"
+      - "traefik.http.routers.code_share_altacee.tls.certresolver=letsencrypt"
+      - "traefik.http.services.code_share_altacee.loadbalancer.server.port=5001"
     volumes:
       - ./room_code_files:/app/room_code_files
     environment:
