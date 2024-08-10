@@ -19,4 +19,4 @@ COPY . /app/
 RUN mkdir -p /app/room_code_files
 
 # Command to run the application with Gunicorn
-CMD ["gunicorn", "-w", "4", "-k", "gevent", "-b", "0.0.0.0:5000", "app:app", "--worker-connections", "1000", "--timeout", "120", "--log-level", "info"]
+CMD ["gunicorn", "-w", "4", "-k", "gevent", "-b", "0.0.0.0:5001", "app:app", "--worker-connections", "1000", "--timeout", "120", "--log-level", "info"]
