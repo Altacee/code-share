@@ -3,22 +3,14 @@ version: '3.8'
 services:
   web:
     build: .
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.code_share_altacee.rule=Host(`altacee.lol`)"
-      - "traefik.http.routers.code_share_altacee.entrypoints=https"
-      - "traefik.http.routers.code_share_altacee.tls.certresolver=letsencrypt"
-      - "traefik.http.services.code_share_altacee.loadbalancer.server.port=5001"
-      - "traefik.http.routers.code_share_altacee.middlewares=websockets"
-      - "traefik.http.middlewares.websockets.headers.customrequestheaders.X-Forwarded-Proto=https"
-      - "traefik.http.middlewares.websockets.headers.customrequestheaders.Connection=Upgrade"
-      - "traefik.http.middlewares.websockets.headers.customrequestheaders.Upgrade=websocket"
     volumes:
       - ./room_code_files:/app/room_code_files
     environment:
       - SECRET_KEY=your_secret_key
     networks:
       - traefik-network
+    ports:
+      - 5001:5001
 
 networks:
   traefik-network:
