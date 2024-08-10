@@ -16,12 +16,6 @@ services:
     networks:
       - traefik-network
 
-  # Optionally, add a file storage service for the code files
-  file-storage:
-    image: busybox
-    volumes:
-      - ./room_code_files:/app/room_code_files
-
 networks:
   traefik-network:
     external: true
