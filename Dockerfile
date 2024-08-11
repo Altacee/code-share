@@ -1,22 +1,17 @@
-# Base image with Python 3.10
-FROM python:3.10-slim
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /app
 
-# Install dependencies
-COPY requirements.txt /app/
+# Copy the current directory contents into the container at /app
+COPY . /app
+
+# Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the current directory contents into the container at /app
-COPY . /app/
+# Expose the port that the app runs on
+EXPOSE 5001
 
-# Create directory for storing code files
-RUN mkdir -p /app/room_code_files
-
-# Command to run the application with Gunicorn
-CMD ["gunicorn", "-w", "4", "-k", "gevent", "-b", "0.0.0.0:5001", "app:app", "--worker-connections", "1000", "--timeout", "120", "--log-level", "info"]
+# Command to run the app using Gunicorn with eventlet
+CMD ["gunicorn", "-k", "eventlet", "-w", "1", "-b", "0.0.0.0:5001", "app:app"]
