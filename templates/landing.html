@@ -3,33 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>Equal Sized Divs Layout</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            background-color: #121212; /* Dark background color */
+            color: #e0e0e0; /* Light text color */
             margin: 0;
-            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
         }
         .container {
-            text-align: center;
-            background: white;
+            display: flex;
+            justify-content: space-between;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-sizing: border-box; /* Includes padding in the width calculation */
+            flex-wrap: wrap; /* Allows wrapping of boxes on smaller screens */
         }
-        h1 {
-            color: #333;
+        .box {
+            background-color: #1f1f1f; /* Darker background for boxes */
+            border: 1px solid #333; /* Border color */
+            padding: 20px;
+            color: #e0e0e0; /* Text color inside boxes */
+            flex: 1; /* Each box takes up equal space */
+            margin: 10px 0; /* Margin between boxes */
+            box-sizing: border-box; /* Includes border and padding in the width calculation */
+            min-width: 100%; /* Default full width */
+        }
+        .box:first-child {
+            margin-left: 0; /* Remove left margin for the first box */
+        }
+        .box:last-child {
+            margin-right: 0; /* Remove right margin for the last box */
+        }
+        .syntax {
+            font-family: 'Courier New', Courier, monospace; /* Monospaced font for code */
+            background-color: #2e2e2e; /* Slightly lighter background for syntax */
+            padding: 10px;
+            border: 1px solid #444; /* Border around syntax block */
+            margin-top: 10px;
+            overflow-x: auto; /* Scroll horizontally if content overflows */
+            position: relative; /* Position relative for button placement */
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #4CAF50; /* Green background for button */
+            color: white; /* White text color */
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .copy-btn.copied {
+            background-color: #45a049; /* Darker green for tick mark */
+        }
+        .copy-btn::after {
+            content: '✔'; /* Tick mark */
+            display: none;
+            margin-left: 5px;
+        }
+        .copy-btn.copied::after {
+            display: inline;
+        }
+        .note {
+            font-size: 0.9em; /* Slightly smaller font size for notes */
+            color: #b0b0b0; /* Lighter color for notes */
+            margin-top: 5px;
+        }
+        .properties {
+            margin-top: 10px;
+            font-size: 0.9em; /* Slightly smaller font size for properties */
+            color: #b0b0b0; /* Lighter color for properties */
+        }
+
+        @media screen and (min-width: 768px) {
+            .box {
+                margin: 0 10px; /* Margin between boxes on larger screens */
+                min-width: calc(33.333% - 20px); /* Ensure three boxes fit in a row */
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome!</h1>
-        <p>Thank you for visiting our website.</p>
+        <div class="box">
+            <h2>C++</h2>
+            <div class="syntax">
+                <button class="copy-btn" onclick="copyToClipboard('cpp-code', this)">Copy</button>
+                <pre id="cpp-code">
+/* C++ comment example */
+#include <iostream>
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+    return 0;
+}
+                </pre>
+            </div>
+            <div class="note">Basic C++ syntax for a simple program.</div>
+            <div class="properties">
+                <p><strong>Properties:</strong></p>
+                <ul>
+                    <li>Statically typed, compiled language.</li>
+                    <li>Supports object-oriented, procedural, and generic programming paradigms.</li>
+                    <li>Widely used in system/software development, game development, and real-time systems.</li>
+                    <li>Offers direct manipulation of hardware resources.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="box">
+            <h2>JAVA</h2>
+            <div class="syntax">
+                <button class="copy-btn" onclick="copyToClipboard('java-code', this)">Copy</button>
+                <pre id="java-code">
+/* JAVA comment example */
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+                </pre>
+            </div>
+            <div class="note">Basic JAVA syntax for a simple program.</div>
+            <div class="properties">
+                <p><strong>Properties:</strong></p>
+                <ul>
+                    <li>Object-oriented, class-based language.</li>
+                    <li>Platform-independent due to the Java Virtual Machine (JVM).</li>
+                    <li>Widely used for building enterprise-scale applications and Android apps.</li>
+                    <li>Strong emphasis on backward compatibility and cross-platform portability.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="box">
+            <h2>Python</h2>
+            <div class="syntax">
+                <button class="copy-btn" onclick="copyToClipboard('python-code', this)">Copy</button>
+                <pre id="python-code">
+# Python comment example
+def main():
+    print("Hello, World!")
+
+if __name__ == "__main__":
+    main()
+                </pre>
+            </div>
+            <div class="note">Basic Python syntax for a simple program.</div>
+            <div class="properties">
+                <p><strong>Properties:</strong></p>
+                <ul>
+                    <li>Interpreted, high-level language with dynamic typing.</li>
+                    <li>Supports multiple programming paradigms, including procedural, object-oriented, and functional programming.</li>
+                    <li>Known for its readability and ease of use, making it popular for beginners and experts alike.</li>
+                    <li>Extensive libraries and frameworks make it versatile for web development, data science, automation, and more.</li>
+                </ul>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function copyToClipboard(id, button) {
+            // Get the code element
+            var code = document.getElementById(id);
+            var range = document.createRange();
+            range.selectNode(code);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            
+            // Copy to clipboard
+            try {
+                document.execCommand('copy');
+                button.classList.add('copied'); // Add copied class to show tick mark
+            } catch (err) {
+                console.error('Failed to copy code:', err);
+            }
+            
+            // Remove the selection
+            window.getSelection().removeAllRanges();
+        }
+    </script>
 </body>
 </html>
