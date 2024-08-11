@@ -23,7 +23,8 @@ room_creation_times = {}
 
 @app.route('/')
 def index():
-    return "Welcome to CodeShare! Use a specific room by visiting /room/<room_name>."
+    return render_template('landing.html')
+    #return "Welcome to CodeShare! Use a specific room by visiting /room/<room_name>."
 
 @app.route('/<room_name>')
 def room(room_name):
