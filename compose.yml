@@ -1,17 +1,17 @@
-version: '3.8'
+version: '3.9'
 
 services:
   web:
     build: .
-    volumes:
-      - ./room_code_files:/app/room_code_files
-    environment:
-      - SECRET_KEY=your_secret_key
-    networks:
-      - traefik-network
     ports:
-      - 5001:5001
+      - "5001:5001"
+    environment:
+      SECRET_KEY: 'your_production_secret_key'
+    depends_on:
+      - redis
+    command: gunicorn -k gevent -w 1 -b 0.0.0.0:5001 app:app
 
-networks:
-  traefik-network:
-    external: true
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
