@@ -122,3 +122,27 @@ h1 {
    margin: 0;
    padding: 0;
 }
+
+.suggest-code-button {
+   position: absolute;
+   top: 50px;
+   right: 10px;
+   background-color: #61afef;
+   color: #fff;
+   border: none;
+   padding: 8px 12px;
+   border-radius: 4px;
+   font-size: 16px;
+   cursor: pointer;
+   font-family: 'Fira Code', monospace;
+   transition: background-color 0.3s ease;
+   z-index: 2;
+}
+
+.suggest-code-button:hover {
+   background-color: #5198d8;
+}
+
+.suggest-code-button i {
+   margin-right: 5px;
+}

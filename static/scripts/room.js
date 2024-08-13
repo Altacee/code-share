@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
    const codeArea = document.getElementById('codeArea');
    const lineNumbers = document.getElementById('lineNumbers');
    const copyCodeButton = document.getElementById('copyCodeButton');
+   const suggestCodeButton = document.getElementById('suggestCodeButton');
    const noInternetOverlay = document.getElementById('noInternetOverlay');
 
    noInternetOverlay.addEventListener('dblclick', () => {
@@ -55,6 +56,41 @@ document.addEventListener('DOMContentLoaded', () => {
        setTimeout(() => {
            copyCodeButton.innerHTML = '<i class="fas fa-copy"></i> Copy Code';
        }, 2000);
+   });
+
+   suggestCodeButton.addEventListener('click', () => {
+       fetch('https://cf.api.altacee.com/get_code', {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json'
+           },
+           body: JSON.stringify({ prompt: codeArea.value })
+       })
+       .then(response => response.json())
+       .then(data => {
+           if (data.success) {
+               let suggestedCode = data.result.response;
+
+               // Check if the response contains code block markers (```)
+               if (suggestedCode.includes('```')) {
+                   // Remove the markdown code block formatting if present
+                   suggestedCode = suggestedCode.replace(/```[a-z]*\n|\n```/g, '');
+               }
+
+               // Update the code area with the suggested code
+               codeArea.value = suggestedCode;
+               updateLineNumbers();
+               updateCodeAreaContent();
+
+               // Emit the updated code to all connected clients
+               socket.emit('code_update', suggestedCode);
+           } else {
+               console.error('Failed to get code suggestions:', data.errors);
+           }
+       })
+       .catch(error => {
+           console.error('Error fetching code suggestions:', error);
+       });
    });
 
    updateLineNumbers();
