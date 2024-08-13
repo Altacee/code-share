@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -8,148 +7,13 @@
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeShare - Room {{ room_name }}</title>
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js?v=1.0"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css?v=1.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js?v=1.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/python.min.js?v=1.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js?v=1.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/java.min.js?v=1.0"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css?v=1.0">
-    <style>
-        body {
-            background-color: #202124;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        h1 {
-            color: #64b5f6;
-            margin-top: 20px;
-            font-size: 2.5em;
-        }
-
-        .code-editor-container {
-            width: 80vw;
-            height: 60vh;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: flex;
-            background-color: #282c34;
-            position: relative;
-        }
-
-        .line-numbers {
-            background-color: #21252b;
-            padding: 10px 15px;
-            color: #6b7380;
-            text-align: right;
-            user-select: none;
-            white-space: nowrap;
-            width: 60px;
-            overflow: hidden;
-            box-sizing: border-box;
-            font-size: 16px;
-            line-height: 1.5;
-            border-right: 1px solid #383c45;
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            z-index: 1;
-        }
-
-        #codeArea {
-            flex: 1;
-            height: 100%;
-            padding: 10px 15px;
-            border: none;
-            background-color: #282c34;
-            color: #abb2bf;
-            resize: none;
-            font-family: 'Fira Code', monospace;
-            tab-size: 4;
-            overflow: auto;
-            box-sizing: border-box;
-            font-size: 16px;
-            line-height: 1.5;
-            margin-left: 60px;
-        }
-
-        #codeArea:focus {
-            outline: none;
-        }
-
-        .copy-code-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #61afef;
-            color: #fff;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            font-family: 'Fira Code', monospace;
-            transition: background-color 0.3s ease;
-            z-index: 2;
-        }
-
-        .copy-code-button:hover {
-            background-color: #5198d8;
-        }
-
-        .copy-code-button i {
-            margin-right: 5px;
-        }
-
-        .no-internet-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: #ffffff;
-            background-image: url('https://bucket.altacee.com/static/no-internet.png');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #5f6368;
-            font-family: 'Roboto', sans-serif;
-            font-size: 16px;
-            text-align: center;
-            z-index: 999;
-            flex-direction: column;
-        }
-
-        .no-internet-overlay h1 {
-            font-size: 18px;
-            margin: 16px 0;
-            padding: 0;
-        }
-
-        .no-internet-overlay p {
-            margin: 0;
-            padding: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/room.css') }}">
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 </head>
-
 <body>
-    <div class="no-internet-overlay" id="noInternetOverlay">
-        
-    </div>
-
+    <div class="no-internet-overlay" id="noInternetOverlay"></div>
     <h1>Room: {{ room_name }}</h1>
-
     <div class="code-editor-container">
         <div class="line-numbers" id="lineNumbers"></div>
         <textarea id="codeArea" rows="20" cols="80"></textarea>
@@ -157,93 +21,6 @@
             <i class="fas fa-copy"></i> Copy Code
         </button>
     </div>
-
-    <script>
-        var socket = io();
-        var codeArea = document.getElementById('codeArea');
-        var lineNumbers = document.getElementById('lineNumbers');
-        var copyCodeButton = document.getElementById('copyCodeButton');
-        var noInternetOverlay = document.getElementById('noInternetOverlay');
-
-        // Hide the no internet overlay when double-clicked
-        noInternetOverlay.addEventListener('dblclick', function () {
-            noInternetOverlay.style.display = 'none';
-        });
-
-        // Function to update line numbers
-        function updateLineNumbers() {
-            var lineCount = codeArea.value.split('\n').length;
-            var lineNumbersHTML = '';
-            for (var i = 1; i <= lineCount; i++) {
-                lineNumbersHTML += i + '<br>';
-            }
-            lineNumbers.innerHTML = lineNumbersHTML;
-        }
-
-        // Function to highlight code
-        function updateCodeAreaContent() {
-            codeArea.className = 'language-' + currentLanguage;
-            hljs.highlightElement(codeArea);
-        }
-
-        // Synchronize scrolling
-        codeArea.addEventListener('scroll', function () {
-            lineNumbers.scrollTop = codeArea.scrollTop;
-        });
-
-        // Join the room
-        socket.emit('join');
-
-        // Listen for code updates 
-        socket.on('code_update', function (data) {
-            codeArea.value = data;
-            updateLineNumbers();
-            updateCodeAreaContent();
-        });
-
-        // Send code updates
-        codeArea.addEventListener('input', function () {
-            socket.emit('code_update', codeArea.value);
-            updateLineNumbers();
-            updateCodeAreaContent();
-        });
-
-        // Override tab key for indentation
-        codeArea.addEventListener('keydown', function (e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                var start = codeArea.selectionStart;
-                var end = codeArea.selectionEnd;
-                codeArea.value = codeArea.value.substring(0, start) + "    " + codeArea.value.substring(end);
-                codeArea.selectionStart = codeArea.selectionEnd = start + 4;
-                updateLineNumbers();
-            }
-        });
-
-        // Copy code to clipboard
-        copyCodeButton.addEventListener('click', function () {
-            codeArea.select();
-            document.execCommand('copy');
-
-            // Provide visual feedback to the user
-            copyCodeButton.innerHTML = '<i class="fas fa-check"></i>';
-            setTimeout(function() {
-                copyCodeButton.innerHTML = '<i class="fas fa-copy"></i> Copy Code';
-            }, 2000); 
-        });
-
-        // Initial updates and event listeners
-        updateLineNumbers();
-        window.addEventListener('resize', updateLineNumbers);
-
-        // Leave the room on page unload
-        window.addEventListener('beforeunload', function () {
-            socket.emit('leave');
-        });
-
-        // Initial highlight update
-        updateCodeAreaContent();
-    </script>
+    <script src="{{ url_for('static', filename='scripts/room.js') }}"></script>
 </body>
-
 </html>
