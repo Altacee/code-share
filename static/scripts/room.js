@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-   const socket = io();
+   const socket = io({
+       transports: ['polling']
+   });
    const codeArea = document.getElementById('codeArea');
    const lineNumbers = document.getElementById('lineNumbers');
    const copyCodeButton = document.getElementById('copyCodeButton');
@@ -70,12 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
           if (data.success) {
               let suggestedCode = data.suggested_code;
-  
+
               // Update the code area with the suggested code
               codeArea.value = suggestedCode;
               updateLineNumbers();
               updateCodeAreaContent();
-  
+
               // Emit the updated code to all connected clients
               socket.emit('code_update', suggestedCode);
           } else {
@@ -86,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
           console.error('Error fetching code suggestions:', error);
       });
   });
-  
 
    updateLineNumbers();
    window.addEventListener('resize', updateLineNumbers);
