@@ -8,7 +8,6 @@
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeShare - Room {{ room_name }}</title>
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js?v=1.0"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css?v=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js?v=1.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/python.min.js?v=1.0"></script>
@@ -144,9 +143,7 @@
 </head>
 
 <body>
-    <div class="no-internet-overlay" id="noInternetOverlay">
-        
-    </div>
+    <div class="no-internet-overlay" id="noInternetOverlay"></div>
 
     <h1>Room: {{ room_name }}</h1>
 
@@ -159,7 +156,6 @@
     </div>
 
     <script>
-        var socket = io();
         var codeArea = document.getElementById('codeArea');
         var lineNumbers = document.getElementById('lineNumbers');
         var copyCodeButton = document.getElementById('copyCodeButton');
@@ -180,10 +176,26 @@
             lineNumbers.innerHTML = lineNumbersHTML;
         }
 
-        // Function to highlight code
-        function updateCodeAreaContent() {
-            codeArea.className = 'language-' + currentLanguage;
-            hljs.highlightElement(codeArea);
+        // Fetch the initial code for the room
+        function fetchCode() {
+            fetch('/get_code')
+                .then(response => response.json())
+                .then(data => {
+                    codeArea.value = data.code;
+                    updateLineNumbers();
+                });
+        }
+
+        // Update the code in the server
+        function updateCode() {
+            const code = codeArea.value;
+            fetch('/update_code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ code: code })
+            });
         }
 
         // Synchronize scrolling
@@ -191,21 +203,10 @@
             lineNumbers.scrollTop = codeArea.scrollTop;
         });
 
-        // Join the room
-        socket.emit('join');
-
-        // Listen for code updates 
-        socket.on('code_update', function (data) {
-            codeArea.value = data;
-            updateLineNumbers();
-            updateCodeAreaContent();
-        });
-
-        // Send code updates
+        // Handle user input and update the code
         codeArea.addEventListener('input', function () {
-            socket.emit('code_update', codeArea.value);
+            updateCode();
             updateLineNumbers();
-            updateCodeAreaContent();
         });
 
         // Override tab key for indentation
@@ -232,17 +233,10 @@
             }, 2000); 
         });
 
-        // Initial updates and event listeners
+        // Initial fetch and setup
+        fetchCode();
         updateLineNumbers();
         window.addEventListener('resize', updateLineNumbers);
-
-        // Leave the room on page unload
-        window.addEventListener('beforeunload', function () {
-            socket.emit('leave');
-        });
-
-        // Initial highlight update
-        updateCodeAreaContent();
     </script>
 </body>
 

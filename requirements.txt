@@ -1,7 +1,2 @@
-Flask 
-Flask-SocketIO
+Flask
 Flask-Session
-pymongo
-eventlet
-gunicorn
-gevent
