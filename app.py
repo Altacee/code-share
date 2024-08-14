@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, make_response, send_from_directory
+from flask import Flask, render_template, session, make_response, send_from_directory, request, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_session import Session
 from datetime import timedelta
@@ -6,6 +6,8 @@ from redis import Redis
 import time
 import threading
 import os
+import re
+import requests
 
 app = Flask(__name__)
 app.config.update(
@@ -17,7 +19,7 @@ app.config.update(
     PERMANENT_SESSION_LIFETIME=timedelta(hours=2),
 )
 Session(app)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet', ping_interval=25, ping_timeout=60, transports=['websocket', 'polling'])
 CODE_DIR = 'room_code_files'
 os.makedirs(CODE_DIR, exist_ok=True)
 room_creation_times = {}
@@ -65,6 +67,30 @@ def handle_code_update(data):
 def on_leave():
     room = session.get('room')
     leave_room(room)
+
+@app.route('/suggest_code', methods=['POST'])
+def suggest_code():
+    prompt = request.json.get('prompt')
+    if not prompt:
+        return jsonify({"success": False, "error": "No prompt provided"}), 400
+
+    api_url = 'http://100.82.48.118:5005/get_code'
+    try:
+        response = requests.post(api_url, json={"prompt": prompt})
+        response_data = response.json()
+
+        if response.status_code == 200 and response_data.get("success"):
+            suggested_code = response_data["result"]["response"]
+
+            # Use regex to remove markdown code block formatting
+            suggested_code = re.sub(r'```[a-z]*\n|\n```', '', suggested_code)
+
+            return jsonify({"success": True, "suggested_code": suggested_code})
+        else:
+            return jsonify({"success": False, "error": response_data.get("errors", "Failed to get code suggestions")}), 500
+
+    except requests.RequestException as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @socketio.on('disconnect')
 def handle_disconnect():

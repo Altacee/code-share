@@ -9,7 +9,7 @@ services:
       SECRET_KEY: 'your_production_secret_key'
     depends_on:
       - redis
-    command: gunicorn -k gevent -w 1 -b 0.0.0.0:5001 app:app
+    command: gunicorn -k eventlet -w 1 -b 0.0.0.0:5001 app:app
 
   redis:
     image: "redis:alpine"
